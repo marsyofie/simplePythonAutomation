@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as BSoup
 from flask import Flask, request, jsonify
 
 
-def get_detail_harga_tes(driver):
+def get_detail_harga_ipay(driver):
 	bs_obj = BSoup(driver.page_source, 'html.parser')
 	rows = bs_obj.find_all('table')[0].find('tbody').find_all('tr')
 	detail_harga = []
@@ -23,7 +23,7 @@ def get_detail_harga_tes(driver):
 		detail_harga.append([kode, harga])
 	return detail_harga
 
-def get_harga_tes():
+def get_harga_ipay():
 	id_tes='xx'
 	hp='+xx'
 	pin='xx'
@@ -43,8 +43,8 @@ def get_harga_tes():
 	# driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
 	#End used for deploy on heroku
 
-	# driver=webdriver.Chrome('/app/.apt/usr/bin/google-chrome') 
-	driver.get('xxx')
+	driver=webdriver.Chrome() 
+	driver.get('http://ipay.allreport.net/report/users/login')
 	# Wait for 5 seconds
 	time.sleep(5)
 	assert 'WebReport' in driver.title
@@ -52,7 +52,7 @@ def get_harga_tes():
 	# Login
 
 	elem = driver.find_element_by_name('id')
-	elem.send_keys(id_tes)
+	elem.send_keys(id_ipay)
 	elem = driver.find_element_by_name('hp')
 	elem.send_keys(hp)
 	elem = driver.find_element_by_name('pass')
@@ -66,52 +66,67 @@ def get_harga_tes():
 	time.sleep(2)
 
 	#three
-	driver.get('xx')
+	driver.get('http://ipay.allreport.net/report/produk/detail/AH')
 	# Wait for 3 seconds
 	# time.sleep(3)
 	assert 'Webreport' in driver.title
-	three = get_detail_harga_tes(driver)
+	three = get_detail_harga_ipay(driver)
 
 	#indosa
-	driver.get('xx')
+	driver.get('http://ipay.allreport.net/report/produk/detail/AII')
 	# Wait for 3 seconds
 	# time.sleep(3)
 	assert 'Webreport' in driver.title
-	indosat = get_detail_harga_tes(driver)
+	indosat = get_detail_harga_ipay(driver)
 
 	#xl
-	driver.get('xx')
+	driver.get('http://ipay.allreport.net/report/produk/detail/ARS')
 	# Wait for 3 seconds
 	# time.sleep(3)
 	assert 'Webreport' in driver.title
-	xl = get_detail_harga_tes(driver)
+	xl = get_detail_harga_ipay(driver)
 
 	#tsel
-	driver.get('xx')
+	driver.get('http://ipay.allreport.net/report/produk/detail/ASS')
 	# Wait for 3 seconds
 	# time.sleep(3)
 	assert 'Webreport' in driver.title
-	tsel = get_detail_harga_tes(driver)
+	tsel = get_detail_harga_ipay(driver)
 
 	
 	# driver.close()
 	driver.quit()
 	return jsonify(three=three,indosat=indosat,xl=xl,tsel=tsel)
 
-def get_detail_harga_duta(driver):
+def get_detail_portal(driver, array_num):
 	bs_obj = BSoup(driver.page_source, 'html.parser')
-	rows = bs_obj.find_all('table')[0].find_all('tr')
+	rows = bs_obj.find_all('table')[array_num].find('tbody').find_all('tr')
 	detail_harga = []
 	for row in rows:
 		cells = row.find_all('td')
 
 		# name = row.find('th').get_text()
 
-		kode = cells[0].get_text()
+		kode = cells[1].get_text()
 		harga = cells[2].get_text()
 
 		detail_harga.append([kode, harga])
 	return detail_harga
+
+def get_harga_portalpulsa():
+	driver=webdriver.Chrome() 
+	driver.get('https://portalpulsa.com/pulsa-reguler-murah/')
+	# Wait for 5 seconds
+	time.sleep(2)
+	assert 'Daftar harga Pulsa Reguler All Operator' in driver.title
+	axis = get_detail_portal(driver,0)
+	indosat = get_detail_portal(driver,2)
+	telkomsel = get_detail_portal(driver,4)
+	three = get_detail_portal(driver,5)
+	xl = get_detail_portal(driver,6)
+
+	driver.quit()
+	return jsonify(axis=axis,indosat=indosat,telkomsel=telkomsel,three=three,xl=xl)
 
 app = Flask(__name__)
 
@@ -121,9 +136,14 @@ def index():
 	return 'Yo, its working!'
 
 
-@app.route('/tes')
-def tes():
-	harga_final = get_harga_tes()
+@app.route('/ipay')
+def ipay():
+	harga_final = get_harga_ipay()
+	return harga_final
+
+@app.route('/portal')
+def portal():
+	harga_final = get_harga_portalpulsa()
 	return harga_final
 
 
