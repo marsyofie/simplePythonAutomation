@@ -14,7 +14,7 @@ MarkupSafe==1.0
 pipreqs==0.4.9
 pyaes==1.6.1
 pyasn1==0.4.4
-requests==2.19.1
+requests==2.20.0
 rsa==3.4.2
 selenium==3.14.0
 Telethon==1.1.1
