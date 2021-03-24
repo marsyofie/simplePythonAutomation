@@ -15,7 +15,7 @@ pipreqs==0.4.9
 pyaes==1.6.1
 pyasn1==0.4.4
 requests==2.19.1
-rsa==3.4.2
+rsa==4.1
 selenium==3.14.0
 Telethon==1.1.1
 urllib3==1.23
